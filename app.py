@@ -22,6 +22,7 @@ def token():
     data = acc_token()
     return data
 
+
 @app.route("/register_url")
 def register_url():
     mpesa_endpoint = "https://sandbox.safaricom.co.ke/mpesa/c2b/v1/registerurl"
@@ -29,7 +30,7 @@ def register_url():
     # 174379
     response_data = requests.post(
         mpesa_endpoint,
-        json = {
+        json={
             "ShortCode": "174379",
             "ResponseType": "Completed",
             "ConfirmationURL": base_url + "/c2b/confirm",
@@ -40,6 +41,7 @@ def register_url():
 
     return response_data.json()
 
+
 @app.route("/c2b/confirm")
 def confirm():
     """get data"""
@@ -48,6 +50,7 @@ def confirm():
     with open("confirm.json", "a") as f:
         json.dump(data, f, indent=2)
 
+
 @app.route("/c2b/validation")
 def validate():
     """get data"""
@@ -55,6 +58,7 @@ def validate():
     """write to file"""
     with open("validate.json", "a") as f:
         json.dump(data, f, indent=2)
+
 
 def acc_token():
     data = requests.get(api_URL, auth=HTTPBasicAuth(consumer_key, consumer_secret)).json()
