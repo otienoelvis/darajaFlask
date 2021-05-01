@@ -14,7 +14,7 @@ def access_token():
     r = requests.get(api_URL, auth=HTTPBasicAuth(consumer_key, consumer_secret))
     data = r.json()
 
-    with open("access_token.json", "w") as f:
+    with open("../access_token.json", "w") as f:
         json.dump(data, f, indent=2)
 
     print(data)

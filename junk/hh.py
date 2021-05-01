@@ -10,7 +10,7 @@ base_url = "https:3.12.118.35:5000"
 
 data = requests.get(api_URL, auth=HTTPBasicAuth(consumer_key, consumer_secret)).json()
 
-with open("access_token.json", "w") as f:
+with open("../access_token.json", "w") as f:
     json.dump(data, f, indent=2)
 
 acc_token = data["access_token"]
@@ -20,7 +20,7 @@ acc_token = data["access_token"]
 def reg():
     api_url = "https://sandbox.safaricom.co.ke/mpesa/c2b/v1/registerurl"
     headers = {"Authorization": "Bearer %s" % acc_token}
-    request = {"ShortCode": "60302ll",
+    request = {"ShortCode": "603021",
                "ResponseType": "Completed",
                "ConfirmationURL": "https://fullstackdjango.com/confirmation",
                "ValidationURL": "https://fullstackdjango.com/validation"}

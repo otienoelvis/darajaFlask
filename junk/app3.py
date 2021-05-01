@@ -59,7 +59,7 @@ def validate():
 def acc_token():
     data = requests.get(api_URL, auth=HTTPBasicAuth(consumer_key, consumer_secret)).json()
 
-    with open("access_token.json", "w") as f:
+    with open("../access_token.json", "w") as f:
         json.dump(data, f, indent=2)
 
     return data["access_token"]
