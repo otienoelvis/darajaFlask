@@ -10,15 +10,14 @@ api_URL = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_c
 
 def acc_token():
     data = requests.get(api_URL, auth=HTTPBasicAuth(config.consumer_key, config.consumer_secret)).json()
-
     return data["access_token"]
 
 
 def timestamp():
     d = datetime.now()
-    timestamp = d.strftime("%Y%m%d%H%M%S")
+    timeStamp = d.strftime("%Y%m%d%H%M%S")
 
-    return timestamp
+    return timeStamp
 
 
 def decoded_pass():
@@ -27,3 +26,5 @@ def decoded_pass():
     decoded_pass = encoded.decode("utf-8")
 
     return decoded_pass
+
+"3.143.135.45"

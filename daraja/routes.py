@@ -4,6 +4,7 @@ import requests
 from daraja.utils import acc_token, timestamp, decoded_pass
 import json
 from daraja.models import TranscComplete, TranscUncomplete
+from datetime import datetime
 
 
 api_URL = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
@@ -34,8 +35,8 @@ def register_url():
         json={
             "ShortCode": config.ShortCode,
             "ResponseType": "Canceled",
-            "ConfirmationURL": "https://18.224.195.36:3000/c2b/confirm",
-            "ValidationURL": "https://18.224.195.36:3000/c2b/validation"
+            "ConfirmationURL": "http://3.143.135.45:5000/c2b/confirm",
+            "ValidationURL": "http://3.143.135.45:5000/c2b/validation"
         },
         headers=headers
     )
@@ -92,8 +93,8 @@ def simulate_online():
         "PartyA": "254745914885",
         "PartyB": "174379",
         "PhoneNumber": "254745914885",
-        "CallBackURL": "http://18.224.195.36:3000/processLipanampesa",
-        "AccountReference": "Yooooooo",
+        "CallBackURL": "http://3.143.135.45:5000/lipanampesa",
+        "AccountReference": "Yoooooop",
         "TransactionDesc": "pay fees"
     }
 
@@ -103,18 +104,11 @@ def simulate_online():
 
 
 @app.route("/lipanampesa", methods=["POST", "GET"])
-def lipanampesa():
-    """get data"""
-    data = request.get_json()
-    """write to file"""
-    with open("lipanampesa.json", "a") as f:
-        json.dump(data, f, indent=2)
-    return data
-
-
-@app.route("/processLipanampesa", methods=["POST", "GET"])
 def process_lipanampesa():
     data = request.get_json()
+
+    TranscDate = str(data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][3]["Value"])
+    TransactionDate = datetime.strptime(TranscDate, "%Y%m%d%H%M%S")
 
     transc = TranscComplete(MerchantRequestID=data["Body"]["stkCallback"]["MerchantRequestID"],
                             CheckoutRequestID=data["Body"]["stkCallback"]["CheckoutRequestID"],
@@ -122,9 +116,10 @@ def process_lipanampesa():
                             ResultDesc=data["Body"]["stkCallback"]["ResultDesc"],
                             Amount=data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][0]["Value"],
                             MpesaReceiptNumber=data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][1]["Value"],
-                            Balance=0,
-                            TransactionDate=data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][3]["Value"],
+                            Balance=0.0,
+                            TransactionDate=TransactionDate,
                             PhoneNumber=data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][4]["Value"]
                             )
     db.session.add(transc)
     db.session.commit()
+    return "done data"
