@@ -20,3 +20,16 @@ def encryptInitiatorPassword():
 
 print
 encryptInitiatorPassword()
+
+
+post = {
+            "MerchantRequestID": data["Body"]["stkCallback"]["MerchantRequestID"],
+            "CheckoutRequestID": data["Body"]["stkCallback"]["CheckoutRequestID"],
+            "ResultCode": data["Body"]["stkCallback"]["ResultCode"],
+            "ResultDesc": data["Body"]["stkCallback"]["ResultDesc"],
+            "Amount": data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][0]["Value"],
+            "MpesaReceiptNumber": data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][1]["Value"],
+            "Balance": 0,
+            "TransactionDate": data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][3]["Value"],
+            "PhoneNumber": data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][4]["Value"]
+        }

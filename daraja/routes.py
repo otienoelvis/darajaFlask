@@ -1,9 +1,9 @@
 from flask import request
-from daraja import app, config
+from daraja import app, config, db
 import requests
 from daraja.utils import acc_token, timestamp, decoded_pass
 import json
-#  from daraja.models import Site
+from daraja.models import TranscComplete, TranscUncomplete
 
 
 api_URL = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
@@ -92,7 +92,7 @@ def simulate_online():
         "PartyA": "254745914885",
         "PartyB": "174379",
         "PhoneNumber": "254745914885",
-        "CallBackURL": "http://18.224.195.36:3000/lipanampesa",
+        "CallBackURL": "http://18.224.195.36:3000/processLipanampesa",
         "AccountReference": "Yooooooo",
         "TransactionDesc": "pay fees"
     }
@@ -110,3 +110,21 @@ def lipanampesa():
     with open("lipanampesa.json", "a") as f:
         json.dump(data, f, indent=2)
     return data
+
+
+@app.route("/processLipanampesa", methods=["POST", "GET"])
+def process_lipanampesa():
+    data = request.get_json()
+
+    transc = TranscComplete(MerchantRequestID=data["Body"]["stkCallback"]["MerchantRequestID"],
+                            CheckoutRequestID=data["Body"]["stkCallback"]["CheckoutRequestID"],
+                            ResultCode=data["Body"]["stkCallback"]["ResultCode"],
+                            ResultDesc=data["Body"]["stkCallback"]["ResultDesc"],
+                            Amount=data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][0]["Value"],
+                            MpesaReceiptNumber=data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][1]["Value"],
+                            Balance=0,
+                            TransactionDate=data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][3]["Value"],
+                            PhoneNumber=data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][4]["Value"]
+                            )
+    db.session.add(transc)
+    db.session.commit()

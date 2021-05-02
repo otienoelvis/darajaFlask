@@ -3,6 +3,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 from datetime import datetime
 import base64
+import json
 
 api_URL = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
 
