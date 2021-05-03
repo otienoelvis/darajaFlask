@@ -7,7 +7,7 @@ class TranscComplete(db.Model):
     MerchantRequestID = db.Column(db.String, primary_key=True, autoincrement=False)
     CheckoutRequestID = db.Column(db.String, unique=True)
     ResultCode = db.Column(db.Integer, nullable=False)
-    ResultDesc = db.Column(db.String, unique=True, nullable=False)
+    ResultDesc = db.Column(db.String, nullable=False)
 
     Amount = db.Column(db.Float, nullable=False)
     MpesaReceiptNumber = db.Column(db.String, unique=True)

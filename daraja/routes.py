@@ -80,7 +80,7 @@ def validate():
     return data
 
 
-@app.route("/mpesaOnline")
+@app.route("/mpesaOnline", methods=["POST", "GET"])
 def simulate_online():
     api_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
     headers = {"Authorization": "Bearer %s" % acc_token()}
@@ -93,13 +93,12 @@ def simulate_online():
         "PartyA": "254745914885",
         "PartyB": "174379",
         "PhoneNumber": "254745914885",
-        "CallBackURL": "http://3.143.135.45:5000/lipanampesa",
-        "AccountReference": "Yoooooop",
+        "CallBackURL": "http://3.143.135.45/lipanampesa",
+        "AccountReference": "Yoooo75p",
         "TransactionDesc": "pay fees"
     }
 
     response = requests.post(api_url, json=request, headers=headers)
-    print(response.json())
     return response.json()
 
 
@@ -122,4 +121,4 @@ def process_lipanampesa():
                             )
     db.session.add(transc)
     db.session.commit()
-    return "done data"
+    return data
