@@ -6,9 +6,7 @@ import json
 from daraja.models import TranscComplete, TranscUncomplete
 from datetime import datetime
 
-
 api_URL = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
-
 
 data = acc_token()
 print(data)
@@ -94,7 +92,7 @@ def simulate_online():
         "PartyB": "174379",
         "PhoneNumber": "254745914885",
         "CallBackURL": "http://3.143.135.45/lipanampesa",
-        "AccountReference": "Yoooo75p",
+        "AccountReference": "jabondo",
         "TransactionDesc": "pay fees"
     }
 
@@ -104,21 +102,28 @@ def simulate_online():
 
 @app.route("/lipanampesa", methods=["POST", "GET"])
 def process_lipanampesa():
+    """
+    callback url, receives data from mpesaOnline
+    :return:
+    """
     data = request.get_json()
+    try:
+        TranscDate = str(data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][3]["Value"])
+        TransactionDate = datetime.strptime(TranscDate, "%Y%m%d%H%M%S")
 
-    TranscDate = str(data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][3]["Value"])
-    TransactionDate = datetime.strptime(TranscDate, "%Y%m%d%H%M%S")
+        transc = TranscComplete(MerchantRequestID=data["Body"]["stkCallback"]["MerchantRequestID"],
+                                CheckoutRequestID=data["Body"]["stkCallback"]["CheckoutRequestID"],
+                                ResultCode=data["Body"]["stkCallback"]["ResultCode"],
+                                ResultDesc=data["Body"]["stkCallback"]["ResultDesc"],
+                                Amount=data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][0]["Value"],
+                                MpesaReceiptNumber=data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][1]["Value"],
+                                Balance=0.0,
+                                TransactionDate=TransactionDate,
+                                PhoneNumber=data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][4]["Value"]
+                                )
 
-    transc = TranscComplete(MerchantRequestID=data["Body"]["stkCallback"]["MerchantRequestID"],
-                            CheckoutRequestID=data["Body"]["stkCallback"]["CheckoutRequestID"],
-                            ResultCode=data["Body"]["stkCallback"]["ResultCode"],
-                            ResultDesc=data["Body"]["stkCallback"]["ResultDesc"],
-                            Amount=data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][0]["Value"],
-                            MpesaReceiptNumber=data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][1]["Value"],
-                            Balance=0.0,
-                            TransactionDate=TransactionDate,
-                            PhoneNumber=data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][4]["Value"]
-                            )
-    db.session.add(transc)
-    db.session.commit()
+        db.session.add(transc)
+        db.session.commit()
+    except:
+
     return data

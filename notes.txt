@@ -183,3 +183,5 @@ def process_lipanampesa():
     with open("official_lipanampesa.json", "w") as f:
         json.dump(data, f, indent=2)
     return data
+
+{'Body': {'stkCallback': {'MerchantRequestID': '81490-8472379-1', 'CheckoutRequestID': 'ws_CO_160620212004187097', 'ResultCode': 1032, 'ResultDesc': 'Request cancelled by user'}}}
