@@ -21,8 +21,8 @@ def timestamp():
 
 
 def decoded_pass():
-    datatoEncode = config.BusinessShortCode + "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919" + timestamp()
-    encoded = base64.b64encode(datatoEncode.encode())
+    dataToEncode = config.BusinessShortCode + "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919" + timestamp()
+    encoded = base64.b64encode(dataToEncode.encode())
     decoded_pass = encoded.decode("utf-8")
 
     return decoded_pass

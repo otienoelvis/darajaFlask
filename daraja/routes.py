@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, jsonify, Response
 from daraja import app, config, db
 import requests
 from daraja.utils import acc_token, timestamp, decoded_pass
@@ -31,51 +31,15 @@ def register_url():
     response_data = requests.post(
         mpesa_endpoint,
         json={
-            "ShortCode": config.ShortCode,
+            "ShortCode": config.shortCode,
             "ResponseType": "Canceled",
-            "ConfirmationURL": "http://3.143.135.45:5000/c2b/confirm",
-            "ValidationURL": "http://3.143.135.45:5000/c2b/validation"
+            "ConfirmationURL": f"{config.base_url}/c2b/confirm",
+            "ValidationURL": f"{config.base_url}/c2b/validation"
         },
         headers=headers
     )
 
     return response_data.json()
-
-
-@app.route("/c2b")
-def simulate_c2b():
-    api_url = "https://sandbox.safaricom.co.ke/mpesa/c2b/v1/simulate"
-    headers = {"Authorization": "Bearer %s" % acc_token()}
-    request = {
-        "ShortCode": config.ShortCode,
-        "CommandID": "CustomerPayBillOnline",
-        "Amount": "1",
-        "Msisdn": "254708374149",
-        "BillRefNumber": "123gh658"
-    }
-
-    response = requests.post(api_url, json=request, headers=headers)
-    return response.json()
-
-
-@app.route("/c2b/confirm")
-def confirm():
-    """get data"""
-    data = request.get_json()
-    """write to file"""
-    with open("confirm.json", "a") as f:
-        json.dump(data, f, indent=2)
-    return data
-
-
-@app.route("/c2b/validation")
-def validate():
-    """get data"""
-    data = request.get_json()
-    """write to file"""
-    with open("validate.json", "a") as f:
-        json.dump(data, f, indent=2)
-    return data
 
 
 @app.route("/mpesaOnline", methods=["POST", "GET"])
@@ -91,9 +55,9 @@ def simulate_online():
         "PartyA": "254745914885",
         "PartyB": "174379",
         "PhoneNumber": "254745914885",
-        "CallBackURL": "http://3.143.135.45/lipanampesa",
-        "AccountReference": "jabondo",
-        "TransactionDesc": "pay fees"
+        "CallBackURL": f"{config.base_url}/lipanampesa",
+        "AccountReference": "Oty",
+        "TransactionDesc": "Oty"
     }
 
     response = requests.post(api_url, json=request, headers=headers)
@@ -107,7 +71,7 @@ def process_lipanampesa():
     :return:
     """
     data = request.get_json()
-    try:
+    if data["Body"]["stkCallback"]["ResultCode"] != 1032:
         TranscDate = str(data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][3]["Value"])
         TransactionDate = datetime.strptime(TranscDate, "%Y%m%d%H%M%S")
 
@@ -124,6 +88,57 @@ def process_lipanampesa():
 
         db.session.add(transc)
         db.session.commit()
-    except:
+    else:
+        print("Request cancelled by user")
 
     return data
+
+
+@app.route("/c2b")
+def simulate_c2b():
+    """
+    send to pay bill from stk
+    :return:
+    """
+    api_url = "https://sandbox.safaricom.co.ke/mpesa/c2b/v1/simulate"
+    headers = {"Authorization": "Bearer %s" % acc_token()}
+    request = {
+        "ShortCode": config.shortCode,
+        "CommandID": "CustomerPayBillOnline",
+        "Amount": "100",
+        "Msisdn": config.test_msisdn,
+        "BillRefNumber": "12345678"
+    }
+
+    response = requests.post(api_url, json=request, headers=headers)
+    return response.json()
+
+
+@app.route("/c2b/confirm", methods=['POST', 'GET'])
+def confirm():
+    """get data"""
+    data = request.get_json()
+    """write to file"""
+    with open("confirm.json", "w") as f:
+        json.dump(data, f, indent=2)
+
+    return {
+        "ResultCode": 0,
+        "ResultDesc": "Accepted"
+    }
+
+
+@app.route("/c2b/validation", methods=['POST', 'GET'])
+def validate():
+    """get data"""
+    data = request.get_json()
+    """write to file"""
+
+    with open("validate.json", "w") as f:
+        json.dump(data, f, indent=2)
+
+    return {
+        "ResultCode": 0,
+        "ResultDesc": "Accepted",
+        "ThirdPartyTransID": "Otyyy"
+    }

@@ -185,3 +185,43 @@ def process_lipanampesa():
     return data
 
 {'Body': {'stkCallback': {'MerchantRequestID': '81490-8472379-1', 'CheckoutRequestID': 'ws_CO_160620212004187097', 'ResultCode': 1032, 'ResultDesc': 'Request cancelled by user'}}}
+
+
+@app.route("/c2b")
+def simulate_c2b():
+    """
+    send to pay bill from stk
+    :return:
+    """
+    api_url = "https://sandbox.safaricom.co.ke/mpesa/c2b/v1/simulate"
+    headers = {"Authorization": "Bearer %s" % acc_token()}
+    request = {
+        "ShortCode": config.ShortCode,
+        "CommandID": "CustomerPayBillOnline",
+        "Amount": "1",
+        "Msisdn": "254708374149",
+        "BillRefNumber": "123gh658"
+    }
+
+    response = requests.post(api_url, json=request, headers=headers)
+    return response.json()
+
+
+@app.route("/c2b/confirm")
+def confirm():
+    """get data"""
+    data = request.get_json()
+    """write to file"""
+    with open("confirm.json", "a") as f:
+        json.dump(data, f, indent=2)
+    return data
+
+
+@app.route("/c2b/validation")
+def validate():
+    """get data"""
+    data = request.get_json()
+    """write to file"""
+    with open("validate.json", "a") as f:
+        json.dump(data, f, indent=2)
+    return data
