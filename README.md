@@ -1,7 +1,7 @@
 
 # Mpesa Daraja APi Online intergration with Flask
 
-This is an online Mpesa Payment System
+This is an online Mpesa Payment System(incomplete though)
 
 
 ## Feedback
